@@ -1,0 +1,108 @@
+{
+  "source_file": "data/Dataset_ATS_v2.csv",
+  "random_state": 42,
+  "test_size": 0.2,
+  "scaled_columns": [
+    "tenure",
+    "MonthlyCharges"
+  ],
+  "columns": [
+    "gender",
+    "SeniorCitizen",
+    "Dependents",
+    "tenure",
+    "PhoneService",
+    "MultipleLines",
+    "InternetService",
+    "MonthlyCharges",
+    "Contract_One_year",
+    "Contract_Two_year",
+    "Churn"
+  ],
+  "duplicate_rows_found_and_kept": 302,
+  "missing_values_found": 0,
+  "rows": {
+    "full": 7043,
+    "train": 5634,
+    "test": 1409
+  },
+  "share_of_total": {
+    "train": 0.7999,
+    "test": 0.2001
+  },
+  "churners": {
+    "full": 1869,
+    "train": 1495,
+    "test": 374
+  },
+  "churn_rate": {
+    "full": 0.26537,
+    "train": 0.265353,
+    "test": 0.265436
+  },
+  "contract_mix": {
+    "full": {
+      "Month-to-month": 3875,
+      "One year": 1473,
+      "Two year": 1695
+    },
+    "train": {
+      "Month-to-month": 3094,
+      "One year": 1175,
+      "Two year": 1365
+    },
+    "test": {
+      "Month-to-month": 781,
+      "One year": 298,
+      "Two year": 330
+    }
+  },
+  "scaler": {
+    "type": "StandardScaler",
+    "fitted_on": "training set only",
+    "mean_": {
+      "tenure": 32.36031238906638,
+      "MonthlyCharges": 64.53514376996804
+    },
+    "scale_": {
+      "tenure": 24.563923280228824,
+      "MonthlyCharges": 30.25827042181513
+    }
+  },
+  "scaling_before": {
+    "train_mean": {
+      "tenure": 32.360312,
+      "MonthlyCharges": 64.535144
+    },
+    "train_std": {
+      "tenure": 24.563923,
+      "MonthlyCharges": 30.25827
+    },
+    "test_mean": {
+      "tenure": 32.414478,
+      "MonthlyCharges": 65.652945
+    },
+    "test_std": {
+      "tenure": 24.532939,
+      "MonthlyCharges": 29.388049
+    }
+  },
+  "scaling_after": {
+    "train_mean": {
+      "tenure": 0.0,
+      "MonthlyCharges": 0.0
+    },
+    "train_std": {
+      "tenure": 1.0,
+      "MonthlyCharges": 1.0
+    },
+    "test_mean": {
+      "tenure": 0.002205,
+      "MonthlyCharges": 0.036942
+    },
+    "test_std": {
+      "tenure": 0.998739,
+      "MonthlyCharges": 0.97124
+    }
+  }
+}

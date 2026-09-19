@@ -1,0 +1,31 @@
+{
+  "Churn": {
+    "No": 0,
+    "Yes": 1
+  },
+  "gender": {
+    "Female": 0,
+    "Male": 1
+  },
+  "Dependents": {
+    "No": 0,
+    "Yes": 1
+  },
+  "PhoneService": {
+    "No": 0,
+    "Yes": 1
+  },
+  "MultipleLines": {
+    "No": 0,
+    "Yes": 1
+  },
+  "InternetService": {
+    "DSL": 0,
+    "Fiber optic": 1
+  },
+  "Contract": {
+    "Month-to-month": "baseline (both 0)",
+    "One year": "Contract_One_year=1",
+    "Two year": "Contract_Two_year=1"
+  }
+}
