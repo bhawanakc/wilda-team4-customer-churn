@@ -18,7 +18,7 @@ ACS Work Integrated Learning, Data Analytics. Stage 2 deliverables for S2W8A2.
 pip install -r requirements.txt
 ```
 
-Place the raw dataset at `data/customer_churn.csv`, then run the notebooks in
+Place the raw dataset at `data/Dataset_ATS_v2.csv`, then run the notebooks in
 order — the clustering notebook reads the training set the preparation notebook
 writes:
 
