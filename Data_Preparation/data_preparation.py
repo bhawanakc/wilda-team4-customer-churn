@@ -262,7 +262,7 @@ def save_scaling_figure(train_before: pd.DataFrame, train_after: pd.DataFrame) -
 
 
 def save_outputs(preprocessed, train_df, test_df, scaler, encoders,
-                 before, after, dup_count, missing_total) -> None:
+                 before, after, dup_count, missing_total, raw_shape) -> None:
     """Steps 5 & 8: write every file the rest of the project depends on."""
     print("--- Saving Outputs ---")
 
@@ -285,6 +285,7 @@ def save_outputs(preprocessed, train_df, test_df, scaler, encoders,
     }
     summary = {
         "source_file": str(INPUT_PATH.relative_to(ROOT)).replace("\\", "/"),
+        "raw_shape": {"rows": int(raw_shape[0]), "columns": int(raw_shape[1])},
         "random_state": RANDOM_STATE,
         "test_size": TEST_SIZE,
         "scaled_columns": SCALE_COLS,
@@ -334,6 +335,7 @@ def _round_nested(d: dict) -> dict:
 
 def run_pipeline():
     df = load_data(INPUT_PATH)
+    raw_shape = df.shape
     df, dup_count = check_integrity(df)
     df, missing_total = handle_missing_data(df)
     df, encoders = encode_categorical(df)
@@ -353,7 +355,7 @@ def run_pipeline():
     test_df = pd.concat([X_test_s, y_test], axis=1)[FINAL_COLS]
 
     save_outputs(df, train_df, test_df, scaler, encoders,
-                 before, after, dup_count, missing_total)
+                 before, after, dup_count, missing_total, raw_shape)
     save_scaling_figure(train_before, X_train_s[SCALE_COLS])
 
     # ---- Final summary -----------------------------------------------------
