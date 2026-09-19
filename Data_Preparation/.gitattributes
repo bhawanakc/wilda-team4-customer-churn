@@ -1,0 +1,4 @@
+# Binary outputs - never apply line-ending conversion, it corrupts them.
+*.pdf binary
+*.png binary
+*.pkl binary
