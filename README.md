@@ -62,13 +62,21 @@ The files for the customer segmentation work.
 
 | File | Contents |
 |---|---|
-| `clustering_analysis.ipynb` | The code that chooses k, trains the model and draws the plots. |
-| `cluster_selection_metrics.csv` | Inertia and silhouette score for every k tested. |
+| `clustering_analysis.py` | The pipeline that chooses k, trains the model, names the segments and writes the files below. |
+| `clustering_analysis.ipynb` | A notebook that runs the same script and explains each step. Both write identical files. |
+| `build_docs.py` | Rebuilds `README.md` and `elbow_method_results.pdf` from `clustering_summary.json`. |
+| `cluster_selection_metrics.csv` | Inertia, the percentage fall in inertia and the silhouette score for every k tested. |
 | `elbow_method_results.pdf` | The elbow method analysis and the chosen number of clusters. |
 | `kmeans_model.pkl` | The trained K-Means model. |
 | `cluster_profiles.csv` | The average of each feature per segment, which the segment names are based on. |
 | `cluster_assignments.csv` | Each customer's segment, for the Stage 3 model to use. |
-| `cluster_visualisations/` | The cluster plots, with each segment named in plain English. |
+| `clustering_summary.json` | The numbers used in the README and the elbow method document. |
+| `README.md` | The segments, their profiles, and the action for each one. |
+| `cluster_visualisations/elbow_method.png` | The inertia curve with the elbow marked, and the silhouette scores below it. |
+| `cluster_visualisations/segments_tenure_vs_charges.png` | Every training customer in months and dollars, coloured and labelled by segment. |
+| `cluster_visualisations/segments_pca.png` | The ten features projected into 2D, coloured and labelled by segment. |
+| `cluster_visualisations/churn_rate_by_segment.png` | Churn rate per segment against the overall rate. |
+| `cluster_visualisations/segment_profiles.png` | The profile table as a heatmap, with the real months, dollars and percentages shown. |
 
 ## Method notes
 
