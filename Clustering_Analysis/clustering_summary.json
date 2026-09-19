@@ -47,8 +47,8 @@
     {
       "k": 1,
       "inertia": 19845.6581,
-      "inertia_drop_pct": NaN,
-      "silhouette": NaN
+      "inertia_drop_pct": null,
+      "silhouette": null
     },
     {
       "k": 2,

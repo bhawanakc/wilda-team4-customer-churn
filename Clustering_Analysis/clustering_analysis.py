@@ -266,6 +266,20 @@ def build_assignments(train_labels, test_labels, names) -> pd.DataFrame:
     return assignments
 
 
+def _json_safe(records: list[dict]) -> list[dict]:
+    """
+    Turn pandas NaN into JSON null.
+
+    k = 1 has no previous k to fall from and no silhouette score, so those two
+    cells are empty. A DataFrame stores an empty float cell as NaN, and json
+    writes NaN as the bare token NaN, which is not valid JSON and which strict
+    parsers reject. This writes null instead.
+    """
+    return [{key: (None if isinstance(value, float) and np.isnan(value) else value)
+             for key, value in record.items()}
+            for record in records]
+
+
 def save_outputs(model, metrics, profile, assignments, final_silhouette,
                  scaler, y_train, y_test, feature_names) -> None:
     """Steps 3 and 6: write every file the documents and Stage 3 depend on."""
@@ -306,12 +320,14 @@ def save_outputs(model, metrics, profile, assignments, final_silhouette,
             "tenure": round(float(scaler.scale_[0]), 4),
             "MonthlyCharges": round(float(scaler.scale_[1]), 4),
         },
-        "metrics": metrics.to_dict(orient="records"),
-        "segments": profile.to_dict(orient="records"),
+        "metrics": _json_safe(metrics.to_dict(orient="records")),
+        "segments": _json_safe(profile.to_dict(orient="records")),
         "segment_colours": SEGMENT_COLOURS,
     }
     with open(OUT_DIR / "clustering_summary.json", "w", encoding="utf-8") as f:
-        json.dump(summary, f, indent=2)
+        # allow_nan=False makes the pipeline fail loudly rather than write a
+        # file that a strict JSON parser would reject.
+        json.dump(summary, f, indent=2, allow_nan=False)
     print(f"Summary saved to: {(OUT_DIR / 'clustering_summary.json').relative_to(ROOT)}\n")
 
 
