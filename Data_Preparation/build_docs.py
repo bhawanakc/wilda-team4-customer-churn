@@ -41,7 +41,7 @@ PDF_PATH = HERE / "scaling_techniques.pdf"
 def load_json(path: Path) -> dict:
     if not path.exists():
         raise FileNotFoundError(
-            f"{path.name} not found - run 'python Data_Preparation/data_preparation.py' first."
+            f"{path.name} not found. Run 'python Data_Preparation/data_preparation.py' first."
         )
     return json.loads(path.read_text(encoding="utf-8"))
 
@@ -99,39 +99,43 @@ def build_readme(s: dict, enc: dict) -> None:
          {"not a one year contract": 0, "one year contract": 1}),
         ("Contract_Two_year", "Contract is a two year contract", "int (0/1)",
          {"not a two year contract": 0, "two year contract": 1}),
-        ("Churn", "TARGET - whether the customer left", "int (0/1)", enc["Churn"]),
+        ("Churn", "Target. Whether the customer left", "int (0/1)", enc["Churn"]),
     ]
 
     def enc_text(name: str, mapping) -> str:
         if mapping is None:
             return ("original units in `preprocessed_dataset.csv`, "
-                    "z-score standardised in the train/test sets")
+                    "z-scores in the train and test sets")
         return ", ".join(f"{k} = {v}" for k, v in mapping.items())
 
     dict_rows = "\n".join(
         f"| `{n}` | {d} | {t} | {enc_text(n, m)} |" for n, d, t, m in col_docs
     )
 
-    md = f"""# Data Preparation
+    md = f"""# Data preparation
 
-Stage 2 deliverable for the customer churn analysis - owner: Rohan Sharma Kharel.
+Stage 2 data preparation for the customer churn analysis. Owner: Rohan Sharma Kharel.
 
 ## Overview
 
-One script, [`data_preparation.py`](data_preparation.py), takes the raw dataset at
-`data/Dataset_ATS_v2.csv` ({s['raw_shape']['rows']:,} rows, {s['raw_shape']['columns']} columns) and
-produces everything the clustering and modelling stages need. It runs the integrity
-checks, handles missing data with median/mode imputation, encodes the categorical
-variables, saves the encoded dataset, splits it {int((1 - s['test_size']) * 100)}/{int(s['test_size'] * 100)} stratified on `Churn`, fits a
-`StandardScaler` **on the training set only** and applies it to both sets. Rerun the
-whole thing from the repository root with:
+[`data_preparation.py`](data_preparation.py) reads the raw dataset at
+`data/Dataset_ATS_v2.csv` ({s['raw_shape']['rows']:,} rows, {s['raw_shape']['columns']} columns) and writes every file the
+clustering and modelling stages need. The script runs in this order:
+
+1. Check the data for duplicates, stray whitespace and invalid values.
+2. Fill any missing values, using the median for numbers and the mode for categories.
+3. Encode the categorical columns and save the encoded dataset.
+4. Split the rows {int((1 - s['test_size']) * 100)}/{int(s['test_size'] * 100)} into training and test sets, stratified on `Churn`.
+5. Fit a `StandardScaler` on the training set only, then use it to scale both sets.
+
+To rebuild every output, run this from the repository root:
 
 ```bash
 python Data_Preparation/data_preparation.py
 ```
 
-The two documents in this folder are regenerated from the pipeline's own output, so
-none of the numbers below are typed by hand:
+[`build_docs.py`](build_docs.py) writes this README and the PDF from the numbers the
+pipeline saves, so nobody types the figures by hand:
 
 ```bash
 python Data_Preparation/build_docs.py
@@ -141,21 +145,21 @@ python Data_Preparation/build_docs.py
 
 | File | Contents |
 |---|---|
-| `preprocessed_dataset.csv` | All {rows['full']:,} rows, missing data handled and categorical variables encoded. **Not scaled**, so the values stay readable. |
-| `train_set.csv` | The {rows['train']:,} training rows, scaled. Same {len(s['columns'])} columns, `Churn` last. |
+| `preprocessed_dataset.csv` | All {rows['full']:,} rows with missing data handled and categories encoded. Not scaled, so tenure is in months and charges are in dollars. |
+| `train_set.csv` | The {rows['train']:,} training rows, scaled. Same {len(s['columns'])} columns, with `Churn` last. |
 | `test_set.csv` | The {rows['test']:,} test rows, scaled with the scaler fitted on the training set. |
-| `scaler.pkl` | The fitted `StandardScaler`, so later stages apply the identical transformation. |
-| `encoding_map.json` | Every category-to-number mapping used, for decoding results. |
-| `preparation_summary.json` | The row counts, churn rates and scaler statistics behind this README and the PDF. |
-| `scaling_techniques.pdf` | The scaling techniques document: method, columns, leakage and results. |
+| `scaler.pkl` | The fitted `StandardScaler`. Later stages load it to scale new data the same way. |
+| `encoding_map.json` | The number each category was mapped to. |
+| `preparation_summary.json` | The row counts, churn rates and scaler statistics used in this README and the PDF. |
+| `scaling_techniques.pdf` | Which scaler we used and why, which columns it scaled, how we avoided data leakage, and the results. |
 | `figures/scaling_before_after.png` | Histograms of the training set before and after scaling. |
-| `data_preparation.py` | The pipeline itself. |
+| `data_preparation.py` | The pipeline. |
 | `build_docs.py` | Builds this README and the PDF from `preparation_summary.json`. |
 
 ## Size and composition
 
-Split with `train_test_split(X, y, test_size={s['test_size']}, random_state={s['random_state']}, stratify=y)`.
-Stratifying on `Churn` is what keeps the churn rate identical across the three rows below.
+We split the data with `train_test_split(X, y, test_size={s['test_size']}, random_state={s['random_state']}, stratify=y)`.
+Stratifying on `Churn` gives all three rows below the same churn rate.
 
 | Set | Rows | % of total | Churners | Churn rate | Month-to-month | One year | Two year |
 |---|---|---|---|---|---|---|---|
@@ -163,45 +167,56 @@ Stratifying on `Churn` is what keeps the churn rate identical across the three r
 {comp_row('Training set', 'train', pct(share['train']))}
 {comp_row('Test set', 'test', pct(share['test']))}
 
-Duplicate rows found and kept: **{s['duplicate_rows_found_and_kept']}**. Missing values found: **{s['missing_values_found']}**.
+The raw data has {s['duplicate_rows_found_and_kept']} duplicate rows, and the pipeline keeps them. It has {s['missing_values_found']} missing values.
 
-Scaled columns, fitted on the training set: `tenure` mean {sc['mean_']['tenure']:.4f}, std {sc['scale_']['tenure']:.4f}; `MonthlyCharges` mean {sc['mean_']['MonthlyCharges']:.4f}, std {sc['scale_']['MonthlyCharges']:.4f}.
-After scaling, the training columns have mean 0 and standard deviation 1 exactly, while the test columns land close by but not exactly (`tenure` mean {after['test_mean']['tenure']:.4f}, std {after['test_std']['tenure']:.4f}; `MonthlyCharges` mean {after['test_mean']['MonthlyCharges']:.4f}, std {after['test_std']['MonthlyCharges']:.4f}).
-That small gap is the proof that no test information leaked into the scaler.
+The scaler learned these values from the training set:
+
+| Column | Mean | Standard deviation |
+|---|---|---|
+| `tenure` | {sc['mean_']['tenure']:.4f} | {sc['scale_']['tenure']:.4f} |
+| `MonthlyCharges` | {sc['mean_']['MonthlyCharges']:.4f} | {sc['scale_']['MonthlyCharges']:.4f} |
+
+After scaling, both training columns have a mean of 0 and a standard deviation of 1.
+The test columns come out close to those values but not equal to them. `tenure` has
+mean {after['test_mean']['tenure']:.4f} and standard deviation {after['test_std']['tenure']:.4f}, and `MonthlyCharges` has
+mean {after['test_mean']['MonthlyCharges']:.4f} and standard deviation {after['test_std']['MonthlyCharges']:.4f}. The small gap shows the scaler
+never saw the test rows.
 
 ## Column dictionary
 
-All {len(s['columns'])} columns, in file order, target last.
+The {len(s['columns'])} columns, in file order, with the target last.
 
 | Column | Meaning | Type | Encoding |
 |---|---|---|---|
 {dict_rows}
 
-Only `tenure` and `MonthlyCharges` are scaled. Every other column is already a 0/1 flag,
-and the target is never scaled.
+The pipeline scales only `tenure` and `MonthlyCharges`. Every other feature is a 0/1
+flag, and the target stays as 0/1.
 
 ## Decisions and reasons
 
-- **The {s['duplicate_rows_found_and_kept']} identical rows are kept.** The dataset has no customer ID and only
-  {s['raw_shape']['columns']} fairly coarse columns, so two customers on the same plan with the same tenure and
-  the same monthly charge produce identical rows without being the same person. Dropping
-  them would throw away real customers and bias the churn rate.
-- **Median for numeric, mode for categorical imputation.** The median is not dragged around
-  by extreme charges the way the mean is, and the mode is the only sensible fill for a
-  category. This dataset has {s['missing_values_found']} missing values, but the step is part of the deliverable and
-  stays in the pipeline so it handles a future refresh of the data.
-- **Label encoding for the binary columns, one-hot for `Contract`.** A two-value column maps
-  cleanly to 0/1 with no ordering implied. `Contract` has three levels, and numbering them
-  0/1/2 would tell the model that a two year contract is "twice" a one year one. One-hot
-  with `drop_first=True` avoids that and leaves Month-to-month as the baseline, which is
-  both levels set to 0.
-- **Stratified {int((1 - s['test_size']) * 100)}/{int(s['test_size'] * 100)} split.** Churn is imbalanced at {pct(rate['full'])}, so a plain random split could
-  hand the test set a noticeably different churn rate. Stratifying holds it at
-  {pct(rate['train'])} in training and {pct(rate['test'])} in the test set. `random_state={s['random_state']}` makes the split reproducible.
-- **The scaler is fitted on the training data only.** Fitting on all {rows['full']:,} rows would let the
-  test set's mean and standard deviation shape the training data, so the model would be
-  evaluated on data it had already been told something about. The test set is transformed
-  with the training scaler, exactly as unseen data would be in production.
+- **We kept the {s['duplicate_rows_found_and_kept']} duplicate rows.** The dataset has no customer ID and only
+  {s['raw_shape']['columns']} columns, most with two or three possible values. Two different customers on the
+  same plan, with the same tenure and the same monthly charge, produce identical rows.
+  Dropping the duplicates would remove {s['duplicate_rows_found_and_kept']} real customers from the analysis.
+- **We fill missing numbers with the median and missing categories with the mode.** Extreme
+  values move the mean more than the median. The mode is the most common category. This dataset has {s['missing_values_found']} missing values, so the step changes
+  nothing today. It stays in the pipeline because the assignment requires it and a later
+  version of the data may have gaps.
+- **We label encode the two-value columns and one-hot encode `Contract`.** A column with two
+  values maps to 0 and 1 without implying any order. `Contract` has three values. Numbering
+  them 0, 1 and 2 would tell the model that a two year contract is twice a one year
+  contract. One-hot encoding with `drop_first=True` creates two 0/1 columns instead. A
+  month-to-month customer has 0 in both.
+- **We stratified the {int((1 - s['test_size']) * 100)}/{int(s['test_size'] * 100)} split on `Churn`.** Only {pct(rate['full'])} of customers churned,
+  so a plain random split could give the test set a different churn rate. Stratifying gives
+  {pct(rate['train'])} in the training set and {pct(rate['test'])} in the test set. `random_state={s['random_state']}`
+  makes the split the same on every run.
+- **We fitted the scaler on the training set only.** If we fitted it on all {rows['full']:,} rows,
+  the test set's mean and standard deviation would change how the training data is scaled.
+  The test results would then look better than the model would do on new customers. The
+  pipeline scales the test set with the training scaler, the same way it would scale new
+  customer data.
 """
     README_PATH.write_text(md, encoding="utf-8")
     print(f"Wrote {README_PATH.relative_to(ROOT)}")
@@ -257,78 +272,77 @@ def build_pdf(s: dict) -> None:
         return t
 
     story = []
-    story.append(Paragraph("Scaling Techniques Applied to the Customer Churn Dataset", h1))
+    story.append(Paragraph("Scaling techniques applied to the customer churn dataset", h1))
     story.append(Paragraph(
         "WILDA Team 4 &middot; ACS Work Integrated Learning, Data Analytics &middot; Stage 2 "
         "Data Preparation &middot; Rohan Sharma Kharel", sub))
 
     # 1. Purpose
-    story.append(Paragraph("1. Purpose: why scaling matters here", h2))
+    story.append(Paragraph("1. Why the data needs scaling", h2))
     story.append(Paragraph(
-        f"After encoding, the dataset has {len(s['columns']) - 1} features and one target. Eight of those features "
-        "are 0/1 flags, but two are not: <b>tenure</b> runs from 0 to 72 months and "
-        "<b>MonthlyCharges</b> runs from $18 to $119. Left as they are, those two columns are "
-        "up to two orders of magnitude larger than every flag beside them. That matters "
-        "because of what happens next. The clustering stage uses K-Means, which assigns a "
-        "customer to a cluster by straight-line distance, so a column measured in dollars "
-        "would dominate the distance calculation and the clusters would be little more than "
-        "a split on price. The Stage 3 neural network is affected too: inputs on widely "
-        "different scales make the gradients pull unevenly and the network slower and less "
-        "stable to train. Putting the continuous columns on the same footing as the flags "
-        "is what stops the unit of measurement deciding the result.", body))
+        f"After encoding, the dataset has {len(s['columns']) - 1} features and one target. Eight of the features "
+        "are 0/1 flags. The other two are much larger. <b>tenure</b> runs from 0 to 72 months, "
+        "and <b>MonthlyCharges</b> runs from $18 to $119.", body))
+    story.append(Paragraph(
+        "The clustering stage uses K-Means, which puts each customer in the cluster with the "
+        "nearest centre. Unscaled, a $50 difference in monthly charge counts 50 times as much "
+        "as the difference between having and not having phone service. The clusters would "
+        "mostly split customers by price. The Stage 3 neural network also trains more slowly "
+        "and less reliably when its inputs have very different ranges. Scaling puts tenure "
+        "and MonthlyCharges on a range close to the 0/1 flags, so no feature counts more just "
+        "because of its units.", body))
 
     # 2. Technique
-    story.append(Paragraph("2. Technique chosen: StandardScaler (z-score standardisation)", h2))
+    story.append(Paragraph("2. Technique chosen: StandardScaler", h2))
     story.append(Paragraph(
-        "Each value is replaced by how many standard deviations it sits from its column mean:"
-        " <b>z = (x &minus; mean) / std</b>. The transformed column has a mean of 0 and a "
-        "standard deviation of 1. Two alternatives were considered and rejected:", body))
+        "StandardScaler replaces each value with its distance from the column mean, measured "
+        "in standard deviations: <b>z = (x &minus; mean) / std</b>. Each scaled column has a "
+        "mean of 0 and a standard deviation of 1. We compared it with two other scalers:", body))
     story.append(bullets([
-        "<b>MinMaxScaler</b> squeezes a column into the 0 to 1 range using only its minimum "
-        "and maximum, so the two most extreme customers set the scale for everyone else and "
-        "the rest of the distribution is compressed. StandardScaler uses every row, keeps the "
-        "shape of the distribution intact, and produces the zero-centred inputs that suit the "
-        "Stage 3 neural network.",
-        "<b>RobustScaler</b> uses the median and the interquartile range and earns its keep "
-        "when extreme outliers would distort the mean and standard deviation. Neither column "
-        "has that problem: tenure is capped at 72 months by the data itself and MonthlyCharges "
-        "tops out at $119, so there is nothing for a robust method to protect against.",
+        "<b>MinMaxScaler</b> maps each column to the range 0 to 1 using its minimum and "
+        "maximum, so the single most extreme customer at each end sets the scale for everyone. "
+        "StandardScaler uses the mean and standard deviation of every row, and it centres each "
+        "column on 0, which suits the Stage 3 neural network.",
+        "<b>RobustScaler</b> uses the median and the interquartile range, which helps when a "
+        "few extreme outliers distort the mean and standard deviation. These two columns have "
+        "no such outliers. Tenure never goes above 72 months and MonthlyCharges never goes "
+        "above $119.",
     ]))
 
     # 3. Columns
     story.append(Paragraph("3. Columns scaled and not scaled", h2))
     story.append(Paragraph(
-        "Only <b>tenure</b> and <b>MonthlyCharges</b> are scaled. The eight encoded columns "
-        "(gender, SeniorCitizen, Dependents, PhoneService, MultipleLines, InternetService, "
-        "Contract_One_year, Contract_Two_year) are already 0/1, so they are on a comparable "
-        "range with each other and with the standardised columns. Standardising a binary flag "
-        "adds nothing: it just replaces the two values with two other numbers, while making "
-        "the column harder to read and harder to explain to the client. The target "
-        "<b>Churn</b> is never scaled, because it is the label being predicted, not an input "
-        "feature.", body))
+        "The pipeline scales only <b>tenure</b> and <b>MonthlyCharges</b>. The eight encoded "
+        "columns (gender, SeniorCitizen, Dependents, PhoneService, MultipleLines, "
+        "InternetService, Contract_One_year and Contract_Two_year) already hold 0 or 1, which "
+        "is close to the range of the scaled columns. Scaling a 0/1 column would swap its two "
+        "values for two other numbers. The model would learn nothing new, and the column would "
+        "be harder to read. The pipeline never scales the target, <b>Churn</b>, because it is "
+        "the value the model predicts rather than an input.", body))
 
     # 4. Leakage
     story.append(Paragraph("4. Preventing data leakage", h2))
     story.append(Paragraph(
-        "The scaler is fitted on the training set only, and that same fitted scaler is then "
-        "used to transform the test set. The order matters: the data is split first and "
-        "scaled second. Fitting the scaler on all "
-        f"{rows['full']:,} rows would mean the mean and standard deviation it subtracts and "
-        "divides by were calculated partly from the test rows. The test set is meant to stand "
-        "in for customers the model has never seen, so the moment its statistics help shape "
-        "the training data, the evaluation is measuring something easier than reality and the "
-        "reported accuracy is optimistic. Fitting on training data only is also what actually "
-        "happens in production: when a new customer arrives tomorrow, the only statistics "
-        "available are the ones already learned.", body))
+        "The pipeline splits the data first and scales it second. It fits the scaler on the "
+        "training set only, then uses that fitted scaler to transform the test set.", body))
+    story.append(Paragraph(
+        f"If we fitted the scaler on all {rows['full']:,} rows, the mean and standard deviation "
+        "it uses would come partly from the test rows. The test set stands in for customers "
+        "the model has never seen. Once its statistics shape the training data, the test "
+        "results look better than the model would do on real new customers. Fitting on "
+        "the training set only also matches how the model will be used. When a new customer "
+        "joins, the only statistics available are the ones learned from the training data.",
+        body))
 
     story.append(PageBreak())
 
     # 5. Split
-    story.append(Paragraph("5. The split the scaler was fitted on", h2))
+    story.append(Paragraph("5. Training and test split", h2))
     story.append(Paragraph(
-        f"The dataset was split {int((1 - s['test_size']) * 100)}/{int(s['test_size'] * 100)}, stratified on Churn, with "
-        f"random_state={s['random_state']} for reproducibility. Churn is imbalanced at "
-        f"{pct(rate['full'])}, so stratifying is what keeps that rate steady across both sets:", body))
+        f"We split the dataset {int((1 - s['test_size']) * 100)}/{int(s['test_size'] * 100)}, stratified on Churn, with "
+        f"random_state={s['random_state']} so the split is the same on every run. Only "
+        f"{pct(rate['full'])} of customers churned, and stratifying keeps that rate the same "
+        "in both sets.", body))
     story.append(table([
         ["Set", "Rows", "% of total", "Churners", "Churn rate"],
         ["Full dataset", f"{rows['full']:,}", "100.00%", f"{churners['full']:,}", pct(rate["full"])],
@@ -355,14 +369,18 @@ def build_pdf(s: dict) -> None:
     ], [3.6 * cm, 2.1 * cm, 2.1 * cm, 2.1 * cm, 2.1 * cm, 2.1 * cm, 2.1 * cm]))
     story.append(Spacer(1, 6))
     story.append(Paragraph(
-        "The training columns come out at exactly mean 0 and standard deviation 1, which is "
-        "what fitting on that set guarantees. The test set lands close to but not exactly on "
-        f"0 and 1 (tenure {after['test_mean']['tenure']:.4f} and {after['test_std']['tenure']:.4f}, MonthlyCharges "
-        f"{after['test_mean']['MonthlyCharges']:.4f} and {after['test_std']['MonthlyCharges']:.4f}). That is the expected result and a "
-        "useful check: if the test columns were also exactly 0 and 1, the scaler would have "
-        "been fitted on the full dataset and the pipeline would be leaking. The figure below "
-        "shows the effect on the training set. The bars keep their shape exactly; only the "
-        "axis changes, from months and dollars to standard deviations from the mean.", body))
+        "Both training columns have a mean of 0 and a standard deviation of 1, because the "
+        "scaler learned its statistics from that set. The test columns come out close to "
+        f"those values but not equal to them. Tenure has mean {after['test_mean']['tenure']:.4f} and standard "
+        f"deviation {after['test_std']['tenure']:.4f}, and MonthlyCharges has mean "
+        f"{after['test_mean']['MonthlyCharges']:.4f} and standard deviation {after['test_std']['MonthlyCharges']:.4f}.", body))
+    story.append(Paragraph(
+        "This gap is expected, and it is a useful check. If the test columns also came out at "
+        "exactly 0 and 1, the scaler would have learned from the test rows.", body))
+    story.append(Paragraph(
+        "The figure below shows the training set before and after scaling. The bars have the "
+        "same shape in both rows. Only the axis changes, from months and dollars to standard "
+        "deviations from the mean.", body))
     story.append(Image(str(FIGURE_PATH), width=15.6 * cm, height=9.9 * cm))
     story.append(Paragraph(
         "Training set distributions before (top) and after (bottom) standardisation.", caption))
@@ -372,50 +390,52 @@ def build_pdf(s: dict) -> None:
     # 7. Code
     story.append(Paragraph("7. Code snippets", h2))
     story.append(Paragraph(
-        "Taken from <font face='Courier'>Data_Preparation/data_preparation.py</font>. "
-        "First the split, which happens before any scaling:", body))
+        "These snippets come from <font face='Courier'>Data_Preparation/data_preparation.py</font>. "
+        "The pipeline splits the data before it scales anything:", body))
     story.append(code_block(snippet("X_train, X_test, y_train, y_test = train_test_split(",
                                     last_line_equals="    )")))
     story.append(Paragraph(
-        "Then the scaler, fitted on the training rows and applied to both sets. "
-        "<font face='Courier'>fit_transform</font> is called on the training data only; the "
-        "test data gets <font face='Courier'>transform</font>, which reuses the statistics "
-        "already learned:", body))
+        "It then calls <font face='Courier'>fit_transform</font> on the training rows only. "
+        "The test rows go through <font face='Courier'>transform</font>, which reuses the "
+        "mean and standard deviation learned from the training rows:", body))
     story.append(code_block(snippet("scaler = StandardScaler()", n_lines=3)))
-    story.append(Paragraph("Finally the fitted scaler is saved so it can be reused:", body))
+    story.append(Paragraph("Finally, it saves the fitted scaler:", body))
     story.append(code_block(snippet('joblib.dump(scaler,', n_lines=1)))
 
     # 8. Reuse
-    story.append(Paragraph("8. Reusing the scaler downstream", h2))
+    story.append(Paragraph("8. Reusing the scaler in later stages", h2))
     story.append(Paragraph(
-        "<font face='Courier'>scaler.pkl</font> holds the means and standard deviations "
-        f"learned from the training set (tenure {sc['mean_']['tenure']:.4f} / {sc['scale_']['tenure']:.4f}, "
-        f"MonthlyCharges {sc['mean_']['MonthlyCharges']:.4f} / {sc['scale_']['MonthlyCharges']:.4f}). The clustering "
-        "stage and the Stage 3 model load it rather than fitting their own, so every stage "
-        "transforms data identically and a cluster centre can be converted back into months "
-        "and dollars for the client:", body))
+        "<font face='Courier'>scaler.pkl</font> stores the mean and standard deviation "
+        "learned from the training set. For tenure these are "
+        f"{sc['mean_']['tenure']:.4f} and {sc['scale_']['tenure']:.4f}, and for MonthlyCharges "
+        f"{sc['mean_']['MonthlyCharges']:.4f} and {sc['scale_']['MonthlyCharges']:.4f}.", body))
+    story.append(Paragraph(
+        "The clustering stage and the Stage 3 model load this file instead of fitting their "
+        "own scaler, so every stage scales data the same way. The same file converts a "
+        "cluster centre back into months and dollars for the client:", body))
     story.append(code_block(
         "import joblib\n\n"
         "scaler = joblib.load(\"Data_Preparation/scaler.pkl\")\n"
         "SCALE_COLS = [\"tenure\", \"MonthlyCharges\"]\n\n"
-        "# Apply the identical transformation to any new data\n"
+        "# Scale new data the same way as the training data\n"
         "new_data[SCALE_COLS] = scaler.transform(new_data[SCALE_COLS])\n\n"
         "# Or read a scaled value back in months and dollars\n"
         "original = scaler.inverse_transform(scaled_values)"))
     story.append(Paragraph(
-        "The pre-scaled train and test sets are committed as "
+        "The repository already contains the scaled sets as "
         "<font face='Courier'>train_set.csv</font> and "
-        "<font face='Courier'>test_set.csv</font>, so the later stages do not need to repeat "
-        "any of this; the scaler is there for new data and for reading results back in the "
-        "original units. The row counts, churn rates and scaler statistics quoted throughout "
-        "this document are generated from "
-        "<font face='Courier'>preparation_summary.json</font>, which the pipeline writes on "
-        "each run.", body))
+        "<font face='Courier'>test_set.csv</font>, so later stages can use them directly. "
+        "They need the scaler only for new data and for converting results back to months "
+        "and dollars.", body))
+    story.append(Paragraph(
+        "The pipeline writes <font face='Courier'>preparation_summary.json</font> on each run, "
+        "and every row count, churn rate and scaler statistic in this document comes from "
+        "that file.", body))
 
     doc = SimpleDocTemplate(
         str(PDF_PATH), pagesize=A4,
         leftMargin=2.2 * cm, rightMargin=2.2 * cm, topMargin=1.8 * cm, bottomMargin=1.8 * cm,
-        title="Scaling Techniques - Customer Churn Data Preparation",
+        title="Scaling techniques, customer churn data preparation",
         author="Rohan Sharma Kharel, WILDA Team 4",
     )
     doc.build(story)
