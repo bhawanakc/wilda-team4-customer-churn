@@ -25,6 +25,13 @@ writes:
 1. `Data_Preparation/data_preparation.ipynb`
 2. `Clustering_Analysis/clustering_analysis.ipynb`
 
+The preparation notebook is a walkthrough of `Data_Preparation/data_preparation.py`,
+so step 1 can equally be run from the command line:
+
+```bash
+python Data_Preparation/data_preparation.py
+```
+
 ## Repository structure
 
 ### data/
@@ -33,12 +40,16 @@ The raw dataset, unmodified. The single input the whole pipeline depends on.
 ### Data_Preparation/
 Everything covering the preparation of the dataset for analysis and modelling.
 
-- `data_preparation.ipynb` - the notebook that produces the files below
+- `data_preparation.py` - the pipeline that produces the files below
+- `data_preparation.ipynb` - the notebook walkthrough, which runs that same script, so both routes produce identical files
 - `preprocessed_dataset.csv` - the cleaned dataset, with missing values handled and categorical variables encoded
 - `train_set.csv` and `test_set.csv` - the training and testing split used for model validation
-- `scaler.pkl` and `feature_names.pkl` - the fitted scaler and column order, so the clustering notebook reuses the exact same transformation
-- `preparation_summary.txt` - the figures behind the scaling documentation
+- `README.md` - the size and composition of those two sets, the column dictionary, and the reasoning behind each preparation decision
+- `scaler.pkl` and `encoding_map.json` - the fitted scaler and the category mappings, so the clustering notebook reuses the exact same transformation
+- `preparation_summary.json` - the figures behind the scaling documentation
 - `scaling_techniques.pdf` - documentation of the scaling method applied, the columns it was applied to, why it suits this data, and the split ratio used
+- `build_docs.py` - regenerates the two documents above from `preparation_summary.json`
+- `figures/` - the before and after scaling histograms used in that document
 
 ### Clustering_Analysis/
 Everything covering the customer segmentation work.
