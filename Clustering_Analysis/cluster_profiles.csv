@@ -1,0 +1,5 @@
+cluster,segment,size,share_pct,churners,churn_rate,test_size,test_churn_rate,tenure_months,monthly_charges,gender_male,senior_citizen,dependents,phone_service,multiple_lines,fiber_optic,contract_one_year,contract_two_year
+0,New high spenders,1775,31.51,864,0.4868,449,0.5056,14.9,81.1,0.4992,0.2372,0.1803,0.9977,0.413,0.4163,0.1938,0.2496
+3,New low spenders,1381,24.51,342,0.2476,345,0.229,10.5,32.1,0.5351,0.0652,0.2998,0.7951,0.4098,0.4345,0.2209,0.239
+2,Long-term high spenders,1512,26.84,243,0.1607,402,0.1418,58.7,93.8,0.506,0.2249,0.3313,0.9967,0.4325,0.4537,0.2044,0.2388
+1,Long-term low spenders,966,17.15,46,0.0476,213,0.0516,54.5,34.8,0.4959,0.0745,0.4586,0.7288,0.4161,0.4451,0.2246,0.2391

@@ -1,0 +1,196 @@
+{
+  "k": 4,
+  "optimal_k": 4,
+  "random_state": 42,
+  "n_init": 10,
+  "k_range": [
+    1,
+    10
+  ],
+  "features": [
+    "gender",
+    "SeniorCitizen",
+    "Dependents",
+    "tenure",
+    "PhoneService",
+    "MultipleLines",
+    "InternetService",
+    "MonthlyCharges",
+    "Contract_One_year",
+    "Contract_Two_year"
+  ],
+  "n_features": 10,
+  "target_excluded": "Churn",
+  "rows": {
+    "train": 5634,
+    "test": 1409
+  },
+  "churn_rate": {
+    "train": 0.265353,
+    "test": 0.265436
+  },
+  "churners": {
+    "train": 1495,
+    "test": 374
+  },
+  "final_inertia": 10700.857,
+  "final_silhouette": 0.2031,
+  "training_means": {
+    "tenure": 32.3603,
+    "MonthlyCharges": 64.5351
+  },
+  "training_stds": {
+    "tenure": 24.5639,
+    "MonthlyCharges": 30.2583
+  },
+  "metrics": [
+    {
+      "k": 1,
+      "inertia": 19845.6581,
+      "inertia_drop_pct": NaN,
+      "silhouette": NaN
+    },
+    {
+      "k": 2,
+      "inertia": 14844.2116,
+      "inertia_drop_pct": 25.2,
+      "silhouette": 0.2274
+    },
+    {
+      "k": 3,
+      "inertia": 12178.3619,
+      "inertia_drop_pct": 17.96,
+      "silhouette": 0.2116
+    },
+    {
+      "k": 4,
+      "inertia": 10700.857,
+      "inertia_drop_pct": 12.13,
+      "silhouette": 0.2031
+    },
+    {
+      "k": 5,
+      "inertia": 10152.7273,
+      "inertia_drop_pct": 5.12,
+      "silhouette": 0.1801
+    },
+    {
+      "k": 6,
+      "inertia": 9712.958,
+      "inertia_drop_pct": 4.33,
+      "silhouette": 0.1565
+    },
+    {
+      "k": 7,
+      "inertia": 9382.541,
+      "inertia_drop_pct": 3.4,
+      "silhouette": 0.1397
+    },
+    {
+      "k": 8,
+      "inertia": 9011.4468,
+      "inertia_drop_pct": 3.96,
+      "silhouette": 0.1393
+    },
+    {
+      "k": 9,
+      "inertia": 8826.2668,
+      "inertia_drop_pct": 2.05,
+      "silhouette": 0.1328
+    },
+    {
+      "k": 10,
+      "inertia": 8594.3372,
+      "inertia_drop_pct": 2.63,
+      "silhouette": 0.1287
+    }
+  ],
+  "segments": [
+    {
+      "cluster": 0,
+      "segment": "New high spenders",
+      "size": 1775,
+      "share_pct": 31.51,
+      "churners": 864,
+      "churn_rate": 0.4868,
+      "test_size": 449,
+      "test_churn_rate": 0.5056,
+      "tenure_months": 14.9,
+      "monthly_charges": 81.1,
+      "gender_male": 0.4992,
+      "senior_citizen": 0.2372,
+      "dependents": 0.1803,
+      "phone_service": 0.9977,
+      "multiple_lines": 0.413,
+      "fiber_optic": 0.4163,
+      "contract_one_year": 0.1938,
+      "contract_two_year": 0.2496
+    },
+    {
+      "cluster": 3,
+      "segment": "New low spenders",
+      "size": 1381,
+      "share_pct": 24.51,
+      "churners": 342,
+      "churn_rate": 0.2476,
+      "test_size": 345,
+      "test_churn_rate": 0.229,
+      "tenure_months": 10.5,
+      "monthly_charges": 32.1,
+      "gender_male": 0.5351,
+      "senior_citizen": 0.0652,
+      "dependents": 0.2998,
+      "phone_service": 0.7951,
+      "multiple_lines": 0.4098,
+      "fiber_optic": 0.4345,
+      "contract_one_year": 0.2209,
+      "contract_two_year": 0.239
+    },
+    {
+      "cluster": 2,
+      "segment": "Long-term high spenders",
+      "size": 1512,
+      "share_pct": 26.84,
+      "churners": 243,
+      "churn_rate": 0.1607,
+      "test_size": 402,
+      "test_churn_rate": 0.1418,
+      "tenure_months": 58.7,
+      "monthly_charges": 93.8,
+      "gender_male": 0.506,
+      "senior_citizen": 0.2249,
+      "dependents": 0.3313,
+      "phone_service": 0.9967,
+      "multiple_lines": 0.4325,
+      "fiber_optic": 0.4537,
+      "contract_one_year": 0.2044,
+      "contract_two_year": 0.2388
+    },
+    {
+      "cluster": 1,
+      "segment": "Long-term low spenders",
+      "size": 966,
+      "share_pct": 17.15,
+      "churners": 46,
+      "churn_rate": 0.0476,
+      "test_size": 213,
+      "test_churn_rate": 0.0516,
+      "tenure_months": 54.5,
+      "monthly_charges": 34.8,
+      "gender_male": 0.4959,
+      "senior_citizen": 0.0745,
+      "dependents": 0.4586,
+      "phone_service": 0.7288,
+      "multiple_lines": 0.4161,
+      "fiber_optic": 0.4451,
+      "contract_one_year": 0.2246,
+      "contract_two_year": 0.2391
+    }
+  ],
+  "segment_colours": {
+    "New high spenders": "#d55e00",
+    "New low spenders": "#e69f00",
+    "Long-term high spenders": "#0072b2",
+    "Long-term low spenders": "#009e73"
+  }
+}
