@@ -284,7 +284,7 @@ def build_pdf(s: dict) -> None:
         "are 0/1 flags. The other two are much larger. <b>tenure</b> runs from 0 to 72 months, "
         "and <b>MonthlyCharges</b> runs from $18 to $119.", body))
     story.append(Paragraph(
-        "The clustering stage uses K-Means, which puts each customer in the cluster with the "
+        "K-Means is used in the clustering stage, which puts each customer in the cluster with the "
         "nearest centre. Unscaled, a $50 difference in monthly charge counts 50 times as much "
         "as the difference between having and not having phone service. The clusters would "
         "mostly split customers by price. The Stage 3 neural network also trains more slowly "
