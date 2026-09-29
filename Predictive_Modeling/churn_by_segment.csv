@@ -1,0 +1,5 @@
+segment,Customers,Actual_Churners,Actual_Churn_Rate,Predicted_Churners,Predicted_Churn_Rate,Avg_Churn_Prob
+New high spenders,449,227,0.5056,389,0.8664,0.6956
+New low spenders,345,79,0.229,139,0.4029,0.438
+Long-term high spenders,402,57,0.1418,39,0.097,0.2961
+Long-term low spenders,213,11,0.0516,1,0.0047,0.0992
